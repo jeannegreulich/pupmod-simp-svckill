@@ -25,10 +25,12 @@ describe 'not kill services which are symlinked to other services' do
         on(host, 'puppet resource service dnsmasq ensure=stopped')
 
         nfs_package = nil
-        if os_result['release']['major'].to_i < 8
-          nfs_package = 'nfs'
-        else
+
+        result = on(host, "yum list available | grep nfs-utils")
+        if result.match?(/.*nfs-utils.*/
           nfs_package = 'nfs-utils'
+        else
+          nfs_package = 'nfs'
         end
 
         on(host, "puppet resource package #{nfs_package} ensure=latest")
